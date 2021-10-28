@@ -1,33 +1,16 @@
 import express from 'express'
-import axios from 'axios'
-const pokedexRoutes = express()
-import { CountResponse, ErrorResponse } from '../interfaces'
+import cors from 'cors'
+import { corsConfig } from '../configs/cors-config'
+import { countBuilder, dataBuilder, listBuilder } from '../builders/pokedex-builders'
 
-const handlePokemonData = () => {
-    pokedexRoutes.get('/data/:pokemon', async (req: express.Request, res: express.Response, next) => {
-        await axios.get(`https://pokeapi.co/api/v2/pokemon/${req.params.pokemon}`)
-            .then(resp => {
-                return res.send(resp.data)
-            })
-            .catch((err: ErrorResponse) => {
-                const { message, name, url = err.config.url } = err
-                return res.status(404).send({ message, name, url })
-            })
-        next()
-    })
+const pokedexRouter = express.Router()
 
-    pokedexRoutes.get('/count', async (req: express.Request, res: express.Response, next) => {
-        await axios.get('https://pokeapi.co/api/v2/pokedex/1')
-            .then ((resp: CountResponse) => {
-                resp = resp.data
-                const count = resp.pokemon_entries[resp.pokemon_entries.length - 1].entry_number
-                return res.status(200).json({ count })
-            })
-            .catch(() => {
-                return res.sendStatus(404)
-            })
-        next()
-    })
-}
+pokedexRouter.options('*', cors(corsConfig))
+pokedexRouter.use(cors(corsConfig))
+pokedexRouter.use(express.json())
 
-export default handlePokemonData
+pokedexRouter.get('/count', async (req: express.Request, res: express.Response, next: express.NextFunction) => await countBuilder(req, res, next))
+pokedexRouter.get('/data/:pokemon', async (req: express.Request, res: express.Response, next: express.NextFunction) => await dataBuilder(req, res, next))
+pokedexRouter.post('/data/pokemon/list', async (req: express.Request, res: express.Response, next: express.NextFunction) => await listBuilder(req, res, next))
+
+export default pokedexRouter
