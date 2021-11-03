@@ -4,14 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "clean": "rimraf dist/*",
     "lint": "eslint -c .eslintrc.js --ext .ts src --fix",
-    "tsc": "tsc",
-    "build": "npm-run-all clean lint tsc",
-    "dev:start": "npm-run-all build start",
-    "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start",
-    "start": "node .",
-    "server": "nodemon src/index.ts"
+    "start": "nodemon src/index.ts",
+    "mock": "nodemon mocks/mock-server.ts"
   },
   "author": "Tayden Flitcroft",
   "license": "ISC",

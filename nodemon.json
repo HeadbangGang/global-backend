@@ -1,0 +1,5 @@
+{
+    "env": {
+        "CONFIG_ENV": "production"
+    }
+}

@@ -13,5 +13,6 @@ app.get('/', (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log(`The server has been started on port: ${PORT}`)
+    console.info(`Current Environment: ${process.env.CONFIG_ENV}`)
+    console.info(`server is running on port: ${PORT}`)
 })

@@ -1,4 +1,9 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+export interface Config {
+    pokedex: {
+        uri: string
+    }
+}
+
 export interface CountResponse {
     data?: DataContent,
     'pokemon_entries'?: [{
