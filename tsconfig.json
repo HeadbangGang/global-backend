@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
+        "allowJs": true,
         "downlevelIteration": true,
         "types": ["node"],
         "module": "commonjs",
@@ -17,8 +18,10 @@
             ]
         }
     },
+    "exclude": [
+        "mocks"
+    ],
     "include": [
-        "src/**/*",
-        "mocks/**/*"
-, "mocks"    ]
+        "src/**/*"
+    ]
 }

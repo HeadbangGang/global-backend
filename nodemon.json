@@ -1,5 +1,5 @@
 {
     "env": {
-        "CONFIG_ENV": "production"
+        "CONFIG_ENV": "development"
     }
 }
