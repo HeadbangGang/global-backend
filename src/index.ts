@@ -4,7 +4,7 @@ import express from 'express'
 import pokedexRouter from './routes/pokedex'
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
 app.use('/pokedex', pokedexRouter)
 
