@@ -41,7 +41,6 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
                     }).filter(k => k && !k?.other && !k?.versions)
                     const additionalSprites: GenerationData[] = Object.keys(versions).map((version: string) => sprites.versions[version])
                     if (additionalSprites) {
-                        console.log(additionalSprites)
                         additionalSprites.forEach(gen => {
                             Object.keys(gen).forEach((game: string) => {
                                 if (game !== 'icons' && gen[game].front_default) {
