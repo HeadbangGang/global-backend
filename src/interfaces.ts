@@ -1,17 +1,17 @@
 export interface Config {
-    pokedex: {
-        uri: string
+    pokedex?: {
+        uri?: string
     }
 }
 
 export interface CountResponse {
-    data?: DataContent,
+    data?: CountDataContent,
     'pokemon_entries'?: [{
         'entry_number'?: number
     }],
 }
 
-export interface DataContent {
+export interface CountDataContent {
     'pokemon_entries'?: [{
         'entry_number'?: number
     }],
@@ -33,23 +33,51 @@ export interface ListBuilderRequest {
 }
 
 export interface PokemonListResponse {
-    data?: DataContent,
+    data?: PokemonDataContent,
     next?: string,
     results?: ResultsContent[]
 }
 
-export interface DataContent {
+export interface PokemonDataContent {
     next?: string,
     results?: ResultsContent[],
-    name?: string,
     id?: number,
-    sprites?: SpritesContent,
-    types?: []
+    name?: string,
+    img?: string,
+    img_shiny?: string,
+    sprites?: {
+        back_default?: string,
+        back_shiny?: string,
+        front_default?: string,
+        front_shiny?: string,
+        versions?: Versions
+        },
+    types?: TypesResponse[]
 }
 
-export interface SpritesContent {
-    'front_default': string,
-    'front_shiny': string
+export interface TypesResponse {
+    slot?: number,
+    type?: {
+        name?: string,
+        url?: string
+    }
+}
+
+export interface GenerationData {
+    icons?: {
+        front_default?: string,
+        front_female?: string
+    },
+    'ultra-sun-ultra-moon'?: {
+        front_default?: string,
+        front_female?: string,
+        front_shiny?: string,
+        front_shiny_female?: string
+    }
+}
+
+export interface Versions {
+    'generation-vii'?: GenerationData
 }
 
 export interface ResultsContent {

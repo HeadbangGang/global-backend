@@ -19,7 +19,7 @@
         }
     },
     "exclude": [
-        "mocks"
+        "mocks/**/*"
     ],
     "include": [
         "src/**/*"

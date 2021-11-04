@@ -1,19 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import express from 'express'
 import axios, { AxiosResponse } from 'axios'
 import {
     CountResponse,
-    DataContent,
-    // ErrorResponse,
     ListBuilderRequest,
     PokemonListResponse,
-    ResultsContent
+    ResultsContent,
+    GenerationData,
+    PokemonDataContent
 } from '../interfaces'
 import { pokedexUri } from '../configs/config'
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    console.log(pokedexUri)
     const url = req.body?.nextUrl || `${pokedexUri}/api/v2/pokemon?limit=100`
-    let results: DataContent | ResultsContent[] = []
+    let results = []
     let nextUrl: string
     await axios.get(url)
         .then((resp: PokemonListResponse) => {
@@ -30,9 +31,33 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
         await Promise.all(pokemonDataReq)
             .then((resp: PokemonListResponse[]) => {
                 const pokemonData = resp.map(item => {
-                    const { id, sprites, types, name } = item.data
-                    const response = { id, name, img: sprites.front_default, img_shiny: sprites.front_shiny, types }
-                    return response
+                    const { id, sprites, types, name }: PokemonDataContent = item.data
+                    const { versions } = sprites
+                    const sortedSprites = Object.keys(sprites).map((key: string) => {
+                        const sprite: string = sprites[key]
+                        if (sprite) {
+                            return { [key]: sprite }
+                        }
+                    }).filter(k => k && !k?.other && !k?.versions)
+                    const additionalSprites: GenerationData[] = Object.keys(versions).map((version: string) => sprites.versions[version])
+                    if (additionalSprites) {
+                        console.log(additionalSprites)
+                        additionalSprites.forEach(gen => {
+                            Object.keys(gen).forEach((game: string) => {
+                                if (game !== 'icons' && gen[game].front_default) {
+                                    sortedSprites.push({ [game]: gen[game] })
+                                }
+                            })
+                        })
+                    }
+                    return {
+                        id,
+                        name,
+                        img:sprites.front_default,
+                        img_shiny: sprites.front_shiny,
+                        sprites: sortedSprites,
+                        types
+                    }
                 })
                 res.json({ nextUrl, pokemonData })
             })

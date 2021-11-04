@@ -8,7 +8,7 @@
     "lint": "eslint -c .eslintrc.js --ext .ts src --fix",
     "tsc": "tsc",
     "build": "npm-run-all clean lint tsc",
-    "dev:start": "npm-run-all build start",
+    "dev:start": "npm run mock & npm run server",
     "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start",
     "start": "node .",
     "server": "nodemon src/index.ts",
