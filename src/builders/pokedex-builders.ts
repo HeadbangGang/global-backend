@@ -79,15 +79,3 @@ export const countBuilder = async (req: express.Request, res: express.Response, 
         })
     next()
 }
-
-// export const dataBuilder = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-//     await axios.get(`https://pokeapi.co/api/v2/pokemon/${req.params.pokemon}`)
-//         .then(resp => {
-//             return res.send(resp.data)
-//         })
-//         .catch((err: ErrorResponse) => {
-//             const { message, name, url = err.config.url } = err
-//             return res.status(404).send({ message, name, url })
-//         })
-//     next()
-// }
