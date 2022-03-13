@@ -1,6 +1,11 @@
 export interface Config {
-    pokedex?: {
-        uri?: string
+    development?: ConfigContent
+    production?: ConfigContent
+}
+
+export interface ConfigContent {
+    pokedex: {
+        uri: string
     }
 }
 
@@ -45,14 +50,16 @@ export interface PokemonDataContent {
     name?: string,
     img?: string,
     img_shiny?: string,
-    sprites?: {
-        back_default?: string,
-        back_shiny?: string,
-        front_default?: string,
-        front_shiny?: string,
-        versions?: Versions
-        },
+    sprites?: SpritesContent
     types?: TypesResponse[]
+}
+
+export interface SpritesContent {
+    back_default?: string,
+    back_shiny?: string,
+    front_default?: string,
+    front_shiny?: string,
+    versions: Versions
 }
 
 export interface TypesResponse {
@@ -77,7 +84,7 @@ export interface GenerationData {
 }
 
 export interface Versions {
-    'generation-vii'?: GenerationData
+    'generation-vii': GenerationData
 }
 
 export interface ResultsContent {

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import express from 'express'
 import axios, { AxiosResponse } from 'axios'
 import {
@@ -8,7 +6,7 @@ import {
     PokemonListResponse,
     ResultsContent,
     GenerationData,
-    PokemonDataContent
+    SpritesContent
 } from '../interfaces'
 import { pokedexUri } from '../configs/config'
 
@@ -31,20 +29,23 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
         await Promise.all(pokemonDataReq)
             .then((resp: PokemonListResponse[]) => {
                 const pokemonData = resp.map(item => {
-                    const { id, sprites, types, name }: PokemonDataContent = item.data
+                    const { id, sprites, types, name } = item.data
                     const { versions } = sprites
-                    const sortedSprites = Object.keys(sprites).map((key: string) => {
-                        const sprite: string = sprites[key]
+                    const sortedSprites = Object.keys(sprites).map((key) => {
+                        const sprite = sprites[key] as string
                         if (sprite) {
                             return { [key]: sprite }
                         }
-                    }).filter(k => k && !k?.other && !k?.versions)
-                    const additionalSprites: GenerationData[] = Object.keys(versions).map((version: string) => sprites.versions[version])
+                        return
+                    })
+                        .filter(k => k && !k?.other && !k?.versions)
+                    const additionalSprites = Object.keys(versions).map((version) => versions[version] as string) as GenerationData[]
                     if (additionalSprites) {
                         additionalSprites.forEach(gen => {
                             Object.keys(gen).forEach((game: string) => {
-                                if (game !== 'icons' && gen[game].front_default) {
-                                    sortedSprites.push({ [game]: gen[game] })
+                                const currentGameData = gen[game] as SpritesContent
+                                if (game !== 'icons' && currentGameData.front_default) {
+                                    sortedSprites.push({ [game]: gen[game] as string })
                                 }
                             })
                         })

@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Config } from '../interfaces'
-export const env: string = process.env.CONFIG_ENV || 'production'
-const config: Config = require(`./${env}.js`)
+import { Config, ConfigContent } from '../interfaces'
+const config: Config = require('./default')
 
-export const pokedexUri = config.pokedex.uri
+const env: string = process.env.CONFIG_ENV || 'production'
+
+const configData: ConfigContent = config[env]
+
+export const pokedexUri = configData.pokedex.uri

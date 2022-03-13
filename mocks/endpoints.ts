@@ -1,9 +1,9 @@
-import express from 'express'
+import express, { Request, Response, Router } from 'express'
 import fs from 'fs'
-export const router: express.Router = express.Router()
+export const router: Router = express.Router()
 
 const file = (fileName: fs.PathLike, contentType = 'application/json', status = 200) => {
-    return (req, res) => {
+    return (req: Request, res: Response) => {
         res.writeHead(status, {
             'Content-Type': contentType
         })
@@ -23,5 +23,5 @@ router.get('/api/v2/pokemon/blastoise', file('mocks/pokemon/individual/blastoise
 router.get('/api/v2/pokemon/bulbasaur', file('mocks/pokemon/individual/bulbasaur.json'))
 router.get('/api/v2/pokemon/ivysaur', file('mocks/pokemon/individual/ivysaur.json'))
 router.get('/api/v2/pokemon/venusaur', file('mocks/pokemon/individual/venusaur.json'))
-// Pokemon Count
+// Pokémon Count
 router.get('/api/v2/pokedex/1', file('mocks/pokemon/count.json'))
