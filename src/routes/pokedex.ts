@@ -13,6 +13,6 @@ pokedexRouter.use(cors(corsConfig))
 pokedexRouter.use(express.json())
 
 pokedexRouter.get('/count', async (req: express.Request, res: express.Response, next: express.NextFunction) => await countBuilder(req, res, next))
-pokedexRouter.post('/data/pokemon/list', async (req: express.Request, res: express.Response, next: express.NextFunction) => await listBuilder(req, res, next))
+pokedexRouter.post('/pokemon/list', async (req: express.Request, res: express.Response, next: express.NextFunction) => await listBuilder(req, res, next))
 
 export default pokedexRouter

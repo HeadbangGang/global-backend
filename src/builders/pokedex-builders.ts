@@ -11,7 +11,7 @@ import {
 import { pokedexUri } from '../configs/config'
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const url = req.body?.nextUrl || `${pokedexUri}/api/v2/pokemon?limit=100`
+    const url = req.body?.nextUrl ?? `${pokedexUri}/api/v2/pokemon?limit=100`
     let results = []
     let nextUrl: string
     await axios.get(url)
