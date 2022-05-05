@@ -35,7 +35,7 @@ interface ResultsContent {
 }
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const url = req.body?.nextUrl || 'https://pokeapi.co/api/v2/pokemon?limit=100'
+    const url = req.body?.nextUrl ?? 'https://pokeapi.co/api/v2/pokemon?limit=100'
     let results: DataContent | ResultsContent[] = []
     let nextUrl: string
     await axios.get(url)
