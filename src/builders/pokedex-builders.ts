@@ -60,8 +60,8 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
                             pokemonData.push({
                                 id,
                                 name,
-                                'default-image': front_default,
-                                'default-image-shiny': front_shiny,
+                                default_image: front_default,
+                                default_image_shiny: front_shiny,
                                 sprites: sortedSprites,
                                 types
                             })
