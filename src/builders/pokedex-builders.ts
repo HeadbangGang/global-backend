@@ -1,90 +1,91 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import express from 'express'
-import axios, { AxiosResponse } from 'axios'
-import { CountResponse, ErrorResponse } from '../interfaces'
-
-interface ListBuilderRequest {
-    body?: {
-        nextUrl?: string
-    }
-}
-
-interface PokemonListResponse {
-    data?: DataContent,
-    next?: string,
-    results?: ResultsContent[]
-}
-
-interface DataContent {
-    next?: string,
-    results?: ResultsContent[],
-    name?: string,
-    id?: number,
-    sprites?: SpritesContent,
-    types?: []
-}
-
-interface SpritesContent {
-    'front_default': string,
-    'front_shiny': string
-}
-
-interface ResultsContent {
-    name?: string,
-    url?: string
-}
+import {
+    CountResponse, GenerationData,
+    ListBuilderRequest,
+    PokemonListResponse,
+    ResultsContent,
+    SpritesContent,
+    TypesResponse, Versions
+} from '../interfaces'
+import { pokedexUri } from '../configs/config'
+import { sanitizedUrl } from '../helpers/helpers'
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const url = req.body?.nextUrl ?? 'https://pokeapi.co/api/v2/pokemon?limit=100'
-    let results: DataContent | ResultsContent[] = []
-    let nextUrl: string
-    await axios.get(url)
+    const { passbackUrl } = req.body
+    const url = `${pokedexUri}${passbackUrl ?? '/pokemon?limit=100'}`
+    const pokemonData = []
+    let nextUrl
+    let previousUrl
+
+    await fetch(url)
+        .then((resp) => resp.json())
         .then((resp: PokemonListResponse) => {
-            results = resp.data.results
-            nextUrl = resp.data.next
+            const { results } = resp
+            nextUrl = resp.next
+            previousUrl = resp.previous
+
+            nextUrl = sanitizedUrl(nextUrl)
+            previousUrl = sanitizedUrl(previousUrl)
+
+            if (results.length) {
+                const pokemonDataUrls = results.map(({ name }) => `${pokedexUri}/pokemon/${name}`)
+                return Promise.all(pokemonDataUrls.map(async (pokemonUrl) => {
+                    await fetch(pokemonUrl)
+                        .then((r) => r.json())
+                        .then((r) => {
+                            const { name, id, sprites, types }: { name: string, id: string, sprites: SpritesContent, types: TypesResponse } = r
+                            const { versions, front_default, front_shiny } = sprites
+
+                            const sortedSprites = Object.keys(sprites).map((key) => {
+                                const sprite = sprites[key] as string
+                                if (sprite) {
+                                    return { [key]: sprite }
+                                }
+                                return null
+                            })
+                                .filter(k => k && !k?.other && !k?.versions)
+                            const additionalSprites = Object.keys(versions).map((generation) => versions[generation]) as GenerationData[]
+                            console.log(additionalSprites)
+                            if (additionalSprites.length) {
+                                additionalSprites.forEach((version) => {
+                                    Object.keys(version).forEach((game) => {
+                                        const currentGameData = version[game] as SpritesContent
+                                        if (game !== 'icons' && currentGameData.front_default) {
+                                            sortedSprites.push({ [game]: version[game] })
+                                        }
+                                    })
+                                })
+                            }
+
+                            pokemonData.push({
+                                id,
+                                name,
+                                'default-image': front_default,
+                                'default-image-shiny': front_shiny,
+                                sprites: sortedSprites,
+                                types
+                            })
+                        })
+                }))
+            }
         })
-        .catch(() => {
-            res.sendStatus(400)
+        .then(r => {
+            res.status(200).json({ nextUrl, previousUrl, pokemonData })
         })
-    const tayden: Promise<AxiosResponse>[] = results.map((item: ResultsContent) => {
-        return axios.get(`https://pokeapi.co/api/v2/pokemon/${item.name}`)
-    })
-    await Promise.all(tayden)
-        .then((resp: PokemonListResponse[]) => {
-            const pokemonData = resp.map(item => {
-                const { id, sprites, types, name } = item.data
-                const response = { id, name, img: sprites.front_default, img_shiny: sprites.front_shiny, types }
-                return response
-            })
-            res.json({ nextUrl, pokemonData })
+        .catch((err) => {
+            res.status(400).json(err)
         })
-        .catch(() => {
-            res.status(400).send('Failed on group promise')
-        })
-    next()
 }
 
 export const countBuilder = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    await axios.get('https://pokeapi.co/api/v2/pokedex/1')
+    await fetch(`${pokedexUri}/pokedex/1`)
+        .then((resp) => resp.json())
         .then((resp: CountResponse) => {
-            resp = resp.data
-            const count = resp.pokemon_entries[resp.pokemon_entries.length - 1].entry_number
-            res.status(200).json({ count })
+            const { entry_number } = resp.pokemon_entries[resp.pokemon_entries.length - 1]
+            res.status(200).json({ count: entry_number })
         })
         .catch(() => {
-            res.sendStatus(404)
-        })
-    next()
-}
-
-export const dataBuilder = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    await axios.get(`https://pokeapi.co/api/v2/pokemon/${req.params.pokemon}`)
-        .then(resp => {
-            return res.send(resp.data)
-        })
-        .catch((err: ErrorResponse) => {
-            const { message, name, url = err.config.url } = err
-            return res.status(404).send({ message, name, url })
+            res.sendStatus(400)
         })
     next()
 }
