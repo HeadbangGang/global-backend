@@ -1,82 +1,91 @@
 import express from 'express'
-import axios, { AxiosResponse } from 'axios'
 import {
-    CountResponse,
+    CountResponse, GenerationData,
     ListBuilderRequest,
     PokemonListResponse,
     ResultsContent,
-    GenerationData,
-    SpritesContent
+    SpritesContent,
+    TypesResponse, Versions
 } from '../interfaces'
 import { pokedexUri } from '../configs/config'
+import { sanitizedUrl } from '../helpers/helpers'
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const url = req.body?.nextUrl ?? `${pokedexUri}/api/v2/pokemon?limit=100`
-    let results = []
-    let nextUrl: string
-    await axios.get(url)
+    const { passbackUrl } = req.body
+    const url = `${pokedexUri}${passbackUrl ?? '/pokemon?limit=100'}`
+    const pokemonData = []
+    let nextUrl
+    let previousUrl
+
+    await fetch(url)
+        .then((resp) => resp.json())
         .then((resp: PokemonListResponse) => {
-            results = resp.data.results
-            nextUrl = resp.data.next
-        })
-        .catch(() => {
-            res.sendStatus(404)
-        })
-    if (results.length > 0) {
-        const pokemonDataReq: Promise<AxiosResponse>[] = results.map((item: ResultsContent) => {
-            return axios.get(`${pokedexUri}/api/v2/pokemon/${item.name}`)
-        })
-        await Promise.all(pokemonDataReq)
-            .then((resp: PokemonListResponse[]) => {
-                const pokemonData = resp.map(item => {
-                    const { id, sprites, types, name } = item.data
-                    const { versions } = sprites
-                    const sortedSprites = Object.keys(sprites).map((key) => {
-                        const sprite = sprites[key] as string
-                        if (sprite) {
-                            return { [key]: sprite }
-                        }
-                        return
-                    })
-                        .filter(k => k && !k?.other && !k?.versions)
-                    const additionalSprites = Object.keys(versions).map((version) => versions[version] as string) as GenerationData[]
-                    if (additionalSprites) {
-                        additionalSprites.forEach(gen => {
-                            Object.keys(gen).forEach((game: string) => {
-                                const currentGameData = gen[game] as SpritesContent
-                                if (game !== 'icons' && currentGameData.front_default) {
-                                    sortedSprites.push({ [game]: gen[game] as string })
+            const { results } = resp
+            nextUrl = resp.next
+            previousUrl = resp.previous
+
+            nextUrl = sanitizedUrl(nextUrl)
+            previousUrl = sanitizedUrl(previousUrl)
+
+            if (results.length) {
+                const pokemonDataUrls = results.map(({ name }) => `${pokedexUri}/pokemon/${name}`)
+                return Promise.all(pokemonDataUrls.map(async (pokemonUrl) => {
+                    await fetch(pokemonUrl)
+                        .then((r) => r.json())
+                        .then((r) => {
+                            const { name, id, sprites, types }: { name: string, id: string, sprites: SpritesContent, types: TypesResponse } = r
+                            const { versions, front_default, front_shiny } = sprites
+
+                            const sortedSprites = Object.keys(sprites).map((key) => {
+                                const sprite = sprites[key] as string
+                                if (sprite) {
+                                    return { [key]: sprite }
                                 }
+                                return null
+                            })
+                                .filter(k => k && !k?.other && !k?.versions)
+                            const additionalSprites = Object.keys(versions).map((generation) => versions[generation]) as GenerationData[]
+                            console.log(additionalSprites)
+                            if (additionalSprites.length) {
+                                additionalSprites.forEach((version) => {
+                                    Object.keys(version).forEach((game) => {
+                                        const currentGameData = version[game] as SpritesContent
+                                        if (game !== 'icons' && currentGameData.front_default) {
+                                            sortedSprites.push({ [game]: version[game] })
+                                        }
+                                    })
+                                })
+                            }
+
+                            pokemonData.push({
+                                id,
+                                name,
+                                'default-image': front_default,
+                                'default-image-shiny': front_shiny,
+                                sprites: sortedSprites,
+                                types
                             })
                         })
-                    }
-                    return {
-                        id,
-                        name,
-                        img:sprites.front_default,
-                        img_shiny: sprites.front_shiny,
-                        sprites: sortedSprites,
-                        types
-                    }
-                })
-                res.json({ nextUrl, pokemonData })
-            })
-            .catch(() => {
-                res.status(400).send('Failed on group promise')
-            })
-        next()
-    }
+                }))
+            }
+        })
+        .then(r => {
+            res.status(200).json({ nextUrl, previousUrl, pokemonData })
+        })
+        .catch((err) => {
+            res.status(400).json(err)
+        })
 }
 
 export const countBuilder = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    await axios.get(`${pokedexUri}/api/v2/pokedex/1`)
+    await fetch(`${pokedexUri}/pokedex/1`)
+        .then((resp) => resp.json())
         .then((resp: CountResponse) => {
-            resp = resp.data
-            const count = resp.pokemon_entries[resp.pokemon_entries.length - 1].entry_number
-            res.status(200).json({ count })
+            const { entry_number } = resp.pokemon_entries[resp.pokemon_entries.length - 1]
+            res.status(200).json({ count: entry_number })
         })
         .catch(() => {
-            res.sendStatus(404)
+            res.sendStatus(400)
         })
     next()
 }

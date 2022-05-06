@@ -10,75 +10,77 @@ export interface ConfigContent {
 }
 
 export interface CountResponse {
-    data?: CountDataContent,
+    data?: CountDataContent
     'pokemon_entries'?: [{
         'entry_number'?: number
-    }],
+    }]
 }
 
 export interface CountDataContent {
     'pokemon_entries'?: [{
         'entry_number'?: number
-    }],
+    }]
 }
 
 export interface ErrorResponse {
-    message?: string,
-    name?: string,
+    message?: string
+    name?: string
     config?: {
         url?: string
-    },
+    }
     url?: string
 }
 
 export interface ListBuilderRequest {
     body?: {
-        nextUrl?: string
+       passbackUrl?: string
     }
 }
 
 export interface PokemonListResponse {
-    data?: PokemonDataContent,
-    next?: string,
+    data: PokemonDataContent
+    next?: string
     results?: ResultsContent[]
+    previous?: string
 }
 
 export interface PokemonDataContent {
-    next?: string,
-    results?: ResultsContent[],
-    id?: number,
-    name?: string,
-    img?: string,
-    img_shiny?: string,
+    next?: string
+    previous?: string
+    results?: ResultsContent[]
+    id?: number
+    name?: string
+    img?: string
+    img_shiny?: string
     sprites?: SpritesContent
     types?: TypesResponse[]
 }
 
 export interface SpritesContent {
-    back_default?: string,
-    back_shiny?: string,
-    front_default?: string,
-    front_shiny?: string,
+    back_default?: string
+    back_shiny?: string
+    front_default?: string
+    front_shiny?: string
     versions: Versions
 }
 
 export interface TypesResponse {
-    slot?: number,
+    slot?: number
     type?: {
-        name?: string,
+        name?: string
         url?: string
     }
 }
 
 export interface GenerationData {
     icons?: {
-        front_default?: string,
+        front_default?: string
         front_female?: string
-    },
+    }
     'ultra-sun-ultra-moon'?: {
-        front_default?: string,
-        front_female?: string,
-        front_shiny?: string,
+        front_default?: string
+        front_female?: string
+        front_shiny?: string
         front_shiny_female?: string
     }
 }
@@ -88,6 +90,6 @@ export interface Versions {
 }
 
 export interface ResultsContent {
-    name?: string,
+    name?: string
     url?: string
 }

@@ -3,8 +3,9 @@ import { router } from './endpoints'
 
 const PORT = 3002
 
-express()
-    .use(router)
-    .listen(PORT, () => {
+const app = express()
+app.use('/api/v2/', router)
+app.listen(PORT,
+    () => {
         console.log(`mock api server is started on ${PORT}`)
     })
