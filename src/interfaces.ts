@@ -50,8 +50,8 @@ export interface PokemonDataContent {
     results?: ResultsContent[]
     id?: number
     name?: string
-    img?: string
-    img_shiny?: string
+    default_image?: string
+    default_image_shiny?: string
     sprites?: SpritesContent
     types?: TypesResponse[]
 }

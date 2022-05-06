@@ -1,7 +1,7 @@
 import express from 'express'
 import {
     CountResponse, GenerationData,
-    ListBuilderRequest,
+    ListBuilderRequest, PokemonDataContent,
     PokemonListResponse,
     ResultsContent,
     SpritesContent,
@@ -29,6 +29,7 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
 
             if (results.length) {
                 const pokemonDataUrls = results.map(({ name }) => `${pokedexUri}/pokemon/${name}`)
+
                 return Promise.all(pokemonDataUrls.map(async (pokemonUrl) => {
                     await fetch(pokemonUrl)
                         .then((r) => r.json())
@@ -45,7 +46,6 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
                             })
                                 .filter(k => k && !k?.other && !k?.versions)
                             const additionalSprites = Object.keys(versions).map((generation) => versions[generation]) as GenerationData[]
-                            console.log(additionalSprites)
                             if (additionalSprites.length) {
                                 additionalSprites.forEach((version) => {
                                     Object.keys(version).forEach((game) => {
@@ -69,7 +69,8 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
                 }))
             }
         })
-        .then(r => {
+        .then(() => {
+            pokemonData.sort((a, b) => a.id - b.id)
             res.status(200).json({ nextUrl, previousUrl, pokemonData })
         })
         .catch((err) => {
