@@ -11,9 +11,9 @@ import { pokedexUri } from '../configs/config'
 import { sanitizedUrl } from '../helpers/helpers'
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const { passbackUrl } = req.body
+    const { passbackUrl } = req.query
     console.log(req)
-    console.log(req.body)
+    console.log(req.query)
     const url = `${pokedexUri}${passbackUrl || '/pokemon?limit=100'}`
     console.log(url)
     const pokemonData = []

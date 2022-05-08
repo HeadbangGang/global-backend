@@ -32,7 +32,7 @@ export interface ErrorResponse {
 }
 
 export interface ListBuilderRequest {
-    body?: {
+    query?: {
        passbackUrl?: string
     }
 }
