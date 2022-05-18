@@ -8,13 +8,13 @@ Global Backend is my Node.js backend used for my projects. It is currently hoste
 
 #### National Pokedex Pokemon Count
 
-```http
+```
   GET /pokedex/count
 ```
 
 #### Pokemon Data List
 
-```http
+```
   GET /pokedex/pokemon/list
 ```
 
