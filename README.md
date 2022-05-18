@@ -2,11 +2,28 @@
 
 Global Backend is my Node.js backend used for my projects. It is currently hosted on Heroku.
 
-URL: [https://desolate-basin-78066.herokuapp.com/](https://desolate-basin-78066.herokuapp.com/)
+## API Reference
 
-## Example Endpoints
-### GET:
-[National Pokedex Pokemon Count](https://desolate-basin-78066.herokuapp.com/pokedex/count)
+**Base URL**: `https://desolate-basin-78066.herokuapp.com`
 
-### POST:
-[Data of first 100 Pokemon in National Pokedex](https://desolate-basin-78066.herokuapp.com/pokedex/data/pokemon/list) (**No POST Body**)
+#### National Pokedex Pokemon Count
+
+```http
+  GET /pokedex/count
+```
+
+#### Pokemon Data List
+
+```http
+  GET /pokedex/pokemon/list
+```
+
+| Query         | Type     | Description                                         | Default Value                   |
+| :------------ | :------- | :-------------------------------------------------- | :------------------------------ |
+| `limit`       | `string` | **Optional**. Number of Pokémon to return           | 20 (if offset is present) or 100|
+| `offset`      | `string` | **Optional**. Starting index of Pokémon to start at | 1                               |
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
