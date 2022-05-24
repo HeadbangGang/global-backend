@@ -23,6 +23,12 @@ Global Backend is my Node.js backend used for my projects. It is currently hoste
 | `limit`       | `string` | **Optional**. Number of Pokémon to return           | 20 (if offset is present) or 100|
 | `offset`      | `string` | **Optional**. Starting index of Pokémon to start at | 1                               |
 
+#### Projects Used in my Portfolio
+
+```http
+  GET /portfolio/projects
+```
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
