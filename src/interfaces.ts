@@ -31,9 +31,15 @@ export interface ErrorResponse {
     url?: string
 }
 
+export interface NextCallParams {
+    offset: string
+    limit: string
+}
+
 export interface ListBuilderRequest {
-    body?: {
-       passbackUrl?: string
+    query?: {
+       limit?: string
+        offset?: string
     }
 }
 

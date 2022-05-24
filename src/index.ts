@@ -15,6 +15,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './landing-page/landing-page.html'))
 })
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './landing-page/landing-page.html'))
+})
+
 app.listen(PORT, () => {
     console.info(`Current Environment: ${process.env.CONFIG_ENV || 'production'}`)
     console.info(`server is running on port: ${PORT}`)

@@ -1,7 +1,7 @@
 import express from 'express'
 import {
     CountResponse, GenerationData,
-    ListBuilderRequest, PokemonDataContent,
+    ListBuilderRequest, NextCallParams, PokemonDataContent,
     PokemonListResponse,
     ResultsContent,
     SpritesContent,
@@ -11,21 +11,25 @@ import { pokedexUri } from '../configs/config'
 import { sanitizedUrl } from '../helpers/helpers'
 
 export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const { passbackUrl } = req.body
-    const url = `${pokedexUri}${passbackUrl ?? '/pokemon?limit=100'}`
+    const { limit, offset } = req.query
+    let url = `${pokedexUri}/pokemon`
+    if (limit || offset) {
+        url = url + `/?limit=${limit}&offset=${offset}`
+    } else {
+        url = url + '/?limit=100'
+    }
     const pokemonData = []
-    let nextUrl
-    let previousUrl
+    const params = {} as NextCallParams
 
     await fetch(url)
         .then((resp) => resp.json())
         .then((resp: PokemonListResponse) => {
             const { results } = resp
-            nextUrl = resp.next
-            previousUrl = resp.previous
 
-            nextUrl = sanitizedUrl(nextUrl)
-            previousUrl = sanitizedUrl(previousUrl)
+            const nextUrlParams = new URLSearchParams(resp.next.split('?')[1])
+            for (const param of nextUrlParams) {
+                params[param[0]] = param[1]
+            }
 
             if (results.length) {
                 const pokemonDataUrls = results.map(({ name }) => `${pokedexUri}/pokemon/${name}`)
@@ -71,7 +75,7 @@ export const listBuilder = async (req: ListBuilderRequest, res: express.Response
         })
         .then(() => {
             pokemonData.sort((a, b) => a.id - b.id)
-            res.status(200).json({ nextUrl, previousUrl, pokemonData })
+            res.status(200).json({ pokemonData, params })
         })
         .catch((err) => {
             res.status(400).json(err)
