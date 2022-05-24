@@ -20,6 +20,6 @@ module.exports = {
         title: 'Portfolio',
         projectUrl: 'https://github.com/HeadbangGang/portfolio',
         demoUrl: 'https://www.taydenflitcroft.com',
-        image: 'https://firebasestorage.googleapis.com/v0/b/portfolio-2198.appspot.com/o/portfolio.png?alt=media&token=5e9462f5-38e4-4fbc-923e-f2f17f58c52c'
+        image: 'https://firebasestorage.googleapis.com/v0/b/portfolio-2198.appspot.com/o/portfolio.png?alt=media&token=ce5a5a59-5985-4ab9-b294-1f13d5e4dcf2'
     }]
 }
