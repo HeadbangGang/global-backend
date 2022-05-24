@@ -25,7 +25,7 @@ Global Backend is my Node.js backend used for my projects. It is currently hoste
 
 #### Projects Used in my Portfolio
 
-```http
+```
   GET /portfolio/projects
 ```
 
