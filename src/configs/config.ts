@@ -7,3 +7,4 @@ const env: string = process.env.CONFIG_ENV || 'production'
 const configData: ConfigContent = config[env]
 
 export const pokedexUri = configData.pokedex.uri
+export const emailCredentials = configData.email.credentials

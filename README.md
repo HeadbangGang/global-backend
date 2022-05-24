@@ -29,6 +29,21 @@ Global Backend is my Node.js backend used for my projects. It is currently hoste
   GET /portfolio/projects
 ```
 
+#### Send Contact Email
+
+```
+  POST /portfolio/contact
+```
+
+```json
+{
+  "emailMessage": "string",
+  "returnEmail": "string",
+  "senderName": "string",
+  "sendConfirmationEmail": "boolean"
+}
+```
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

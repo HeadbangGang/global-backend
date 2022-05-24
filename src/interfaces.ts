@@ -6,6 +6,17 @@ export interface Config {
 export interface ConfigContent {
     pokedex: {
         uri: string
+    },
+    email: {
+        credentials: {
+            service?: string
+            host?: string
+            port?: number
+            auth: {
+                user: string
+                pass: string
+            }
+        }
     }
 }
 
@@ -98,4 +109,18 @@ export interface Versions {
 export interface ResultsContent {
     name?: string
     url?: string
+}
+
+export interface EmailResponseInterface {
+    accepted: string[]
+    rejected: string[]
+    envelopeTime: number
+    messageTime: number
+    messageSize: number
+    response: string
+    envelope: {
+        from: string
+        to: string[]
+    }
+    messageId: string
 }
