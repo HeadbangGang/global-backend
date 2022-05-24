@@ -8,16 +8,17 @@ interface EmailBodyInterface {
     sendConfirmationEmail: boolean
     emailMessage: string
     senderName: string
+    emailSubject: string
 }
 
 export const sendEmail = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const { returnEmail, sendConfirmationEmail } = req.body as EmailBodyInterface
+    const { emailSubject, returnEmail, sendConfirmationEmail } = req.body as EmailBodyInterface
     const transporter = createTransport({ ...emailCredentials })
 
     const message = {
         from: returnEmail,
         to: 'taydengoodeill@gmail.com',
-        subject: 'Contact Request Form Submitted',
+        subject: `Contact Request Form Submitted - ${emailSubject}`,
         html: emailMessageContent(req)
     }
 
