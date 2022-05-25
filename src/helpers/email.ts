@@ -13,6 +13,7 @@ interface EmailBodyInterface {
 
 export const sendEmail = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const { emailSubject, returnEmail, sendConfirmationEmail } = req.body as EmailBodyInterface
+    console.log(req)
     const transporter = createTransport({ ...emailCredentials })
 
     const message = {
