@@ -18,4 +18,11 @@ export const contactEmailBuilder = async (req: express.Request, res: express.Res
     }
 }
 
-export const sendFileFromS3 = (req: express.Request, res: express.Response) => res.send(fetchFileFromS3(req))
+export const sendFileFromS3 = async (req: express.Request, res: express.Response) => {
+    const dataBlob = await fetchFileFromS3(req) as Blob
+    res.type(dataBlob.type)
+    dataBlob.arrayBuffer()
+        .then((buf) => {
+            res.send(Buffer.from(buf))
+        })
+}
