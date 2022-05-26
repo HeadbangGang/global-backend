@@ -16,11 +16,3 @@ export const contactEmailBuilder = async (req: express.Request, res: express.Res
         res.status(400).send({ emailSentSuccess: false })
     }
 }
-
-export const sendPdfWorker = (req: express.Request, res: express.Response, next: express.NextFunction) => res.send(fs.readFileSync(path.join(__dirname, '../helpers/pdf-worker/pdf-worker.min.js')))
-
-export const sendResume = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const pdf = fs.readFileSync(path.join(__dirname, '../helpers/resume.pdf'))
-    res.contentType('application/pdf')
-    res.send(pdf)
-}
