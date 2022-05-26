@@ -23,4 +23,4 @@ export const fetchFileFromS3 = (req: express.Request) => {
     return S3DataFetch()
 }
 
-const S3DataFetch = () => s3.getSignedUrl('getObject', s3Params)
+const S3DataFetch = () => ({ url: s3.getSignedUrl('getObject', s3Params) })
