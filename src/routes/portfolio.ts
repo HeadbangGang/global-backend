@@ -4,9 +4,9 @@ import { corsConfig } from '../configs/cors-config'
 import {
     contactEmailBuilder,
     projectsBuilder,
-    sendPdfWorker,
-    sendResume
+    sendFileFromS3
 } from '../builders/portfolio-builders'
+import { fetchFileFromS3 } from '../helpers/aws-s3'
 
 const portfolioRouter = express.Router()
 
@@ -15,8 +15,7 @@ portfolioRouter.use(cors(corsConfig))
 portfolioRouter.use(express.json())
 
 portfolioRouter.get('/projects', (req: express.Request, res:express.Response) => projectsBuilder(req, res))
-portfolioRouter.post('/contact', async (req: express.Request, res: express.Response, next:express.NextFunction) => await contactEmailBuilder(req, res))
-portfolioRouter.get('/pdf-worker', (req: express.Request, res: express.Response) => sendPdfWorker(req, res))
-portfolioRouter.get('/resume', async (req: express.Request, res: express.Response) => await sendResume(req, res))
+portfolioRouter.post('/contact', async (req: express.Request, res: express.Response) => await contactEmailBuilder(req, res))
+portfolioRouter.get('/asset', (req: express.Request, res: express.Response) => sendFileFromS3(req, res))
 
 export default portfolioRouter

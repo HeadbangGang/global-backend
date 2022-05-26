@@ -7,6 +7,7 @@ interface S3DataInterface {
 
 interface S3Params extends S3.GetObjectRequest {
     Bucket: string
+    Expires: number
 }
 
 const s3 = new S3({
@@ -14,24 +15,12 @@ const s3 = new S3({
     signatureVersion: 'v4'
 })
 
-const s3Params: S3Params = { Bucket: process.env.S3_BUCKET, Key: null }
+const s3Params: S3Params = { Bucket: process.env.S3_BUCKET, Key: null, Expires: 60 }
 
-export const fetchResumeFromS3 = async (req: express.Request, res: express.Response) => {
-    s3Params.Key = 'resume.pdf'
-    await S3DataFetch(req, res)
+export const fetchFileFromS3 = (req: express.Request) => {
+    const { fileName }: { fileName?: string } = req.query
+    s3Params.Key = fileName
+    return S3DataFetch()
 }
 
-export const fetchPdfWorker = async (req: express.Request, res: express.Response) => {
-    s3Params.Key = 'pdf-worker.min.js'
-    await S3DataFetch(req, res)
-}
-
-const S3DataFetch = async (req: express.Request, res: express.Response) => {
-    await s3.getObject(s3Params, (err: AWSError, data: S3DataInterface) => {
-        if (err) {
-            res.end()
-        }
-        res.write(Buffer.from(data.Body, 'base64').toString('ascii'))
-        res.end()
-    })
-}
+const S3DataFetch = () => s3.getSignedUrl('getObject', s3Params)
