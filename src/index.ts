@@ -1,5 +1,6 @@
 import express from 'express'
 import path from 'path'
+const fs = require('fs')
 
 // Routes
 import pokedexRouter from './routes/pokedex'
@@ -7,6 +8,12 @@ import portfolioRouter from './routes/portfolio'
 
 const app = express()
 const PORT = process.env.PORT || 3001
+
+try {
+    fs.mkdirSync(path.join(__dirname, '/static/dist/helpers'))
+} catch (err) {
+    if (err.code !== 'EEXIST') throw err
+}
 
 app.use('/pokedex', pokedexRouter)
 app.use('/portfolio', portfolioRouter)
