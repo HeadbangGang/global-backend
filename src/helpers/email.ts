@@ -11,7 +11,7 @@ interface EmailBodyInterface {
     emailSubject: string
 }
 
-export const sendEmail = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const sendEmail = async (req: express.Request) => {
     const { emailSubject, returnEmail, sendConfirmationEmail } = req.body as EmailBodyInterface
     const transporter = createTransport({ ...emailCredentials })
 

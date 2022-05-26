@@ -8,7 +8,6 @@ import portfolioRouter from './routes/portfolio'
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use('/static', express.static(path.join(__dirname, 'static')))
 app.use('/pokedex', pokedexRouter)
 app.use('/portfolio', portfolioRouter)
 

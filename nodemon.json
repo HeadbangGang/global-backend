@@ -1,5 +1,8 @@
 {
     "env": {
-        "CONFIG_ENV": "development"
+        "CONFIG_ENV": "development",
+        "S3_BUCKET": "tayden-personal",
+        "AWS_ACCESS_KEY_ID": "AKIA4OMMWL4WIXVAGCGR",
+        "AWS_SECRET_ACCESS_KEY": "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"
     }
 }
