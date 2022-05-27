@@ -3,24 +3,24 @@ module.exports = {
         title: 'Pokedex',
         demoUrl: 'https://www.pokedex.taydenflitcroft.com',
         projectUrl: 'https://github.com/HeadbangGang/pokedex',
-        image: true
+        image: 'pokedex.png'
     }, {
         title: 'Dungeons and Dragons',
         demoUrl: 'https://www.dnd.taydenflitcroft.com',
         projectUrl: 'https://github.com/HeadbangGang/dungeons-and-dragons',
-        image: true
+        image: 'dungeons-and-dragons.png'
     }, {
         title: 'Plex Dashboard',
         projectUrl: 'https://github.com/HeadbangGang/plex-dashboard',
-        image: true
+        image: 'plex-dashboard.png'
     }, {
         title: 'Global Backend',
         projectUrl: 'https://github.com/HeadbangGang/global-backend',
-        image: false
+        image: null
     }, {
         title: 'Portfolio',
         projectUrl: 'https://github.com/HeadbangGang/portfolio',
         demoUrl: 'https://www.taydenflitcroft.com',
-        image: true
+        image: 'portfolio.png'
     }]
 }
