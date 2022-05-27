@@ -4,7 +4,7 @@ Global Backend is my Node.js backend used for my projects. It is currently hoste
 
 ## API Reference
 
-**Base URL**: `https://desolate-basin-78066.herokuapp.com`
+**Base URL**: `https://api.taydenflitcroft.com`
 
 #### National Pokedex Pokemon Count
 
@@ -43,6 +43,15 @@ Global Backend is my Node.js backend used for my projects. It is currently hoste
   "sendConfirmationEmail": "boolean"
 }
 ```
+
+#### Get Static Assets From AWS S3 Database
+```
+    GET /portfolio/asset
+```
+
+| Query      | Type     | Description                                     |
+|:-----------| :------- |:------------------------------------------------|
+| `fileName` | `string` | Static file name requested from AWS S3 database |
 
 ## License
 
