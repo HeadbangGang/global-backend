@@ -1,16 +1,12 @@
 import express from 'express'
 import { AWSError, S3 } from 'aws-sdk'
 
-interface S3DataInterface {
-    Body: any
-}
-
-interface S3Params extends S3.GetObjectRequest {
+export interface S3Params extends S3.GetObjectRequest {
     Bucket: string
     Expires: number
 }
 
-const s3 = new S3({
+export const s3 = new S3({
     region: 'us-east-2',
     signatureVersion: 'v4'
 })
