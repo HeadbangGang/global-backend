@@ -58,6 +58,17 @@ module.exports = {
         },
         description: '[Global Backend](https://api.taydenflitcroft.com) is my Node.js backend used for my projects. It acts as a personal API layer between my front-end projects, and other services/databases such as [PokeApi](https://pokeapi.co) and my Amazon Web Services [S3](https://aws.amazon.com/s3/) database.'
     }, {
+        title: 'Owen Wilson Buttons',
+        projectUrl: 'https://github.com/HeadbangGang/owen-wilson-buttons',
+        id: 'owen-wilson-buttons',
+        image: {
+            icon: {
+                name: 'owen-wilson',
+                fileType: 'png'
+            }
+        },
+        description: '[Owen Wilson Buttons](https://chrome.google.com/webstore/detail/owen-wilson-buttons/bjmcjbjbipaaobcedgdpejjfnlgiojon?hl=en&authuser=0) is a novelty Chrome Extension that adds event listeners to all buttons and anchor elements in the DOM which, when pressed, displays a confetti animation and plays one of 8 variations of Owen Wilson\'s iconic "Wow".'
+    }, {
         title: 'Portfolio',
         projectUrl: 'https://github.com/HeadbangGang/portfolio',
         demoUrl: 'https://www.taydenflitcroft.com',
