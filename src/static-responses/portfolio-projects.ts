@@ -67,7 +67,7 @@ module.exports = {
                 fileType: 'png'
             }
         },
-        description: '[Owen Wilson Buttons](https://chrome.google.com/webstore/detail/owen-wilson-buttons/bjmcjbjbipaaobcedgdpejjfnlgiojon?hl=en&authuser=0) is a novelty Chrome Extension that adds event listeners to all buttons and anchor elements in the DOM which, when pressed, displays a confetti animation and plays one of 8 variations of Owen Wilson\'s iconic "Wow".'
+        description: '[Owen Wilson Buttons](https://chrome.google.com/webstore/detail/owen-wilson-buttons/bjmcjbjbipaaobcedgdpejjfnlgiojon?hl=en&authuser=0) is a novelty Chrome Extension that adds event listeners to all buttons and anchor elements in the DOM which, when pressed, displays a confetti animation and plays one of 8 variations of Owen Wilson\'s iconic "Wow". Owen Wilson Buttons is currently published and publically available on the Chrome Web Store [here](https://chrome.google.com/webstore/detail/owen-wilson-buttons/bjmcjbjbipaaobcedgdpejjfnlgiojon?hl=en&authuser=0).'
     }, {
         title: 'Portfolio',
         projectUrl: 'https://github.com/HeadbangGang/portfolio',
