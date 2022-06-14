@@ -2,9 +2,16 @@ import express from 'express'
 import { sendEmail } from '../helpers/email'
 import { EmailResponseInterface } from '../interfaces'
 import { fetchFileFromS3 } from '../helpers/aws-s3'
-const projects = require('../static-responses/portfolio-projects')
 
-export const projectsBuilder = (req: express.Request, res: express.Response) => res.status(200).send(projects)
+export const projectsBuilder = async (req: express.Request, res: express.Response) => {
+    req.query.fileName = 'projects.json'
+    const dataBlob = await fetchFileFromS3(req) as Blob
+    res.type(dataBlob.type)
+    dataBlob.arrayBuffer()
+        .then((buf: ArrayBuffer) => {
+            res.send(Buffer.from(buf))
+        })
+}
 
 export const contactEmailBuilder = async (req: express.Request, res: express.Response) => {
     const emailResponse = await sendEmail(req) as EmailResponseInterface
@@ -20,7 +27,7 @@ export const sendFileFromS3 = async (req: express.Request, res: express.Response
     const dataBlob = await fetchFileFromS3(req) as Blob
     res.type(dataBlob.type)
     dataBlob.arrayBuffer()
-        .then((buf) => {
+        .then((buf: ArrayBuffer) => {
             res.send(Buffer.from(buf))
         })
 }
