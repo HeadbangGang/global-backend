@@ -17,13 +17,13 @@ export const sendEmail = async (req: express.Request) => {
 
     const message = {
         from: returnEmail,
-        to: 'taydengoodeill@gmail.com',
+        to: 'contact@taydenflitcroft.com',
         subject: `Contact Request Form Submitted - ${emailSubject}`,
         html: emailMessageContent(req)
     }
 
     const returnSenderMessage = {
-        from: 'tayden.contact@gmail.com',
+        from: 'contact@taydenflitcroft.com',
         to: returnEmail,
         subject: 'Copy of Tayden Flitcroft\'s Contact Request Form',
         html: `<div><strong>Copy of Message:</strong></div> <br> <br> ${emailMessageContent(req)} <br> <br> <div>Thank you and speak to you soon!</div><div>Tayden Flitcroft</div></div>`
