@@ -17,9 +17,9 @@ export const contactEmailBuilder = async (req: express.Request, res: express.Res
     const emailResponse = await sendEmail(req) as EmailResponseInterface
 
     if (emailResponse.accepted.length) {
-        res.status(200).send({ emailSentSuccess: true })
+        res.sendStatus(200)
     } else {
-        res.status(400).send({ emailSentSuccess: false })
+        res.sendStatus(400)
     }
 }
 
