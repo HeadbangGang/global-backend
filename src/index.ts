@@ -9,6 +9,8 @@ import 'dotenv/config'
 // Routes
 import pokedexRouter from './routers/pokedex'
 import portfolioRouter from './routers/portfolio'
+import { corsConfig } from './configs/cors-config'
+import cors from 'cors'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -32,6 +34,7 @@ const checkJwt = auth({
     issuerBaseURL: 'https://dev-fsldf8y6.us.auth0.com/',
 })
 
+app.use(cors(corsConfig))
 if (ENV === 'production') {
     app.use(checkJwt)
 }
