@@ -1,7 +1,7 @@
 import { CorsOptions } from 'cors'
 
 export const corsConfig: CorsOptions = {
-    origin: (origin, callback) => {
+    origin: (_origin, callback) => {
         callback(null, true)
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],

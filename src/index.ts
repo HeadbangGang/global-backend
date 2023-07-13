@@ -1,45 +1,47 @@
 import express from 'express'
-import { expressJwtSecret } from 'jwks-rsa'
-const { expressjwt: jwt } = require('express-jwt')
+import { auth } from 'express-oauth2-jwt-bearer'
+import handlebars from 'handlebars'
+import path from 'path'
+import fs from 'fs'
+
+import 'dotenv/config'
 
 // Routes
-import pokedexRouter from './routes/pokedex'
-import portfolioRouter from './routes/portfolio'
-import { s3 } from './helpers/aws-s3'
-import { AWSError } from 'aws-sdk'
+import pokedexRouter from './routers/pokedex'
+import portfolioRouter from './routers/portfolio'
 
 const app = express()
 const PORT = process.env.PORT || 3001
+const ENV = process.env.NODE_ENV || 'production'
 
-app.get('/', async (req:express.Request, res: express.Response) => {
-    await s3.getObject({ Bucket: process.env.S3_BUCKET, Key: 'landing-page.html' }, (err: AWSError, data) => {
-        if (!err) {
-            res.send(data.Body.toString())
-        } else {
-            res.sendStatus(401)
-        }
-    })
+app.get('/', async (_request: express.Request, response: express.Response) => {
+    const landingPage = fs.readFileSync(path.join(__dirname, './html/landing-page.hbs')).toString()
+    const landingPageTemplate = handlebars.compile(landingPage)
+
+    if (!landingPage) {
+        response.sendStatus(500)
+    }
+
+    if (!response.headersSent) {
+        response.status(200).send(landingPageTemplate(null))
+    }
 })
 
-const checkJwt = jwt({
-    secret: expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: 'https://dev-fsldf8y6.us.auth0.com/.well-known/jwks.json'
-    }),
+const checkJwt = auth({
     audience: 'https://api.taydenflitcroft.com',
-    issuer: 'https://dev-fsldf8y6.us.auth0.com/',
-    algorithms: ['RS256']
+    issuerBaseURL: 'https://dev-fsldf8y6.us.auth0.com/',
 })
 
-if (process.env.NODE_ENV === 'production') {
+if (ENV === 'production') {
     app.use(checkJwt)
 }
+
+// Routers
 app.use('/pokedex', pokedexRouter)
 app.use('/portfolio', portfolioRouter)
 
+// Start App
 app.listen(PORT, () => {
-    console.info(`Current Environment: ${process.env.CONFIG_ENV || 'production'}`)
+    console.info(`Current Environment: ${ENV}`)
     console.info(`server is running on port: ${PORT}`)
 })

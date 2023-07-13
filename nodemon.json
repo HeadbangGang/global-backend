@@ -1,6 +1,1 @@
-{
-    "env": {
-        "CONFIG_ENV": "development",
-        "S3_BUCKET": "tayden-personal"
-    }
-}
+{}

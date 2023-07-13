@@ -1,33 +1,46 @@
 import express from 'express'
-import { sendEmail } from '../helpers/email'
-import { EmailResponseInterface } from '../interfaces'
-import { fetchFileFromS3 } from '../helpers/aws-s3'
+import { EmailBodyInterface, sendEmail } from '../helpers/email'
+import { fetchFileFromS3, type S3RequestParams } from '../helpers/aws-s3'
 
-export const projectsBuilder = async (req: express.Request, res: express.Response) => {
-    req.query.fileName = 'projects.json'
-    const dataBlob = await fetchFileFromS3(req) as Blob
-    res.type(dataBlob.type)
+interface EmailResponse {
+    accepted: string[]
+    rejected: string[]
+    envelopeTime: number
+    messageTime: number
+    messageSize: number
+    response: string
+    envelope: {
+        from: string
+        to: string[]
+    }
+    messageId: string
+}
+
+export const projectsBuilder = async (request: express.Request<unknown, unknown, unknown, S3RequestParams>, response: express.Response) : Promise<void> => {
+    request.query.fileName = 'projects.json'
+    const dataBlob = await fetchFileFromS3(request)
+    response.type(dataBlob.type)
     dataBlob.arrayBuffer()
-        .then((buf: ArrayBuffer) => {
-            res.send(Buffer.from(buf))
+        .then((buf: ArrayBuffer) : void => {
+            response.send(Buffer.from(buf))
         })
 }
 
-export const contactEmailBuilder = async (req: express.Request, res: express.Response) => {
-    const emailResponse = await sendEmail(req) as EmailResponseInterface
+export const contactEmailBuilder = async (request: express.Request<EmailBodyInterface>, response: express.Response) : Promise<void> => {
+    const emailResponse: EmailResponse = await sendEmail(request)
 
     if (emailResponse.accepted.length) {
-        res.sendStatus(200)
+        response.sendStatus(200)
     } else {
-        res.sendStatus(400)
+        response.sendStatus(500)
     }
 }
 
-export const sendFileFromS3 = async (req: express.Request, res: express.Response) => {
-    const dataBlob = await fetchFileFromS3(req) as Blob
-    res.type(dataBlob.type)
+export const sendFileFromS3 = async (request: express.Request<unknown, unknown, unknown, S3RequestParams>, response: express.Response) : Promise<void> => {
+    const dataBlob = await fetchFileFromS3(request)
+    response.type(dataBlob.type)
     dataBlob.arrayBuffer()
-        .then((buf: ArrayBuffer) => {
-            res.send(Buffer.from(buf))
+        .then((buf: ArrayBuffer) : void => {
+            response.send(Buffer.from(buf))
         })
 }

@@ -1,27 +1,26 @@
 import express from 'express'
-import { AWSError, S3 } from 'aws-sdk'
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
-export interface S3Params extends S3.GetObjectRequest {
-    Bucket: string
-    Expires: number
+
+export interface S3RequestParams {
+    fileName: string
 }
 
-export const s3 = new S3({
-    region: 'us-east-2',
-    signatureVersion: 'v4'
+export const s3 = new S3Client({
+    region: 'us-east-2'
 })
 
-const s3Params: S3Params = { Bucket: process.env.S3_BUCKET, Key: null, Expires: 60 }
 
-export const fetchFileFromS3 = async (req: express.Request) => {
-    const { fileName }: { fileName?: string } = req.query
-    s3Params.Key = fileName
-    const signedUrl = S3DataFetch()
+export const fetchFileFromS3 = async (request: express.Request<unknown, unknown, unknown, S3RequestParams>) : Promise<Blob> => {
+    const command = new GetObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: request.query.fileName
+    })
 
-    let response: any = await fetch(signedUrl)
-    response = await response.blob()
+    const awsAssetUrl = await getSignedUrl(s3, command, { expiresIn: 3600 })
+    const res = await fetch(awsAssetUrl)
+    const blob = await res.blob()
 
-    return response
+    return blob
 }
-
-const S3DataFetch = () => s3.getSignedUrl('getObject', s3Params)

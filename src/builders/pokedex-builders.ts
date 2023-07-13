@@ -1,96 +1,102 @@
 import express from 'express'
-import {
-    CountResponse, GenerationData,
-    ListBuilderRequest, NextCallParams, PokemonDataContent,
-    PokemonListResponse,
-    ResultsContent,
-    SpritesContent,
-    TypesResponse, Versions
-} from '../interfaces'
-import { pokedexUri } from '../configs/config'
-import { sanitizedUrl } from '../helpers/helpers'
+import { URI } from '../helpers/constants'
+import { NationalPokedex, PokeApiListResponse, PokeApiPokemonResponse, Types } from '../interfaces/pokeapi'
 
-export const listBuilder = async (req: ListBuilderRequest, res: express.Response, next: express.NextFunction) => {
-    const { limit, offset } = req.query
-    let url = `${pokedexUri}/pokemon`
-    if (limit || offset) {
-        url = url + `/?limit=${limit}&offset=${offset}`
-    } else {
-        url = url + '/?limit=100'
-    }
-    const pokemonData = []
-    const params = {} as NextCallParams
-
-    await fetch(url)
-        .then((resp) => resp.json())
-        .then((resp: PokemonListResponse) => {
-            const { results } = resp
-
-            const nextUrlParams = new URLSearchParams(resp.next.split('?')[1])
-            for (const param of nextUrlParams) {
-                params[param[0]] = param[1]
-            }
-
-            if (results.length) {
-                const pokemonDataUrls = results.map(({ name }) => `${pokedexUri}/pokemon/${name}`)
-
-                return Promise.all(pokemonDataUrls.map(async (pokemonUrl) => {
-                    await fetch(pokemonUrl)
-                        .then((r) => r.json())
-                        .then((r) => {
-                            const { name, id, sprites, types }: { name: string, id: string, sprites: SpritesContent, types: TypesResponse } = r
-                            const { versions, front_default, front_shiny } = sprites
-
-                            const sortedSprites = Object.keys(sprites).map((key) => {
-                                const sprite = sprites[key] as string
-                                if (sprite) {
-                                    return { [key]: sprite }
-                                }
-                                return null
-                            })
-                                .filter(k => k && !k?.other && !k?.versions)
-                            const additionalSprites = Object.keys(versions).map((generation) => versions[generation]) as GenerationData[]
-                            if (additionalSprites.length) {
-                                additionalSprites.forEach((version) => {
-                                    Object.keys(version).forEach((game) => {
-                                        const currentGameData = version[game] as SpritesContent
-                                        if (game !== 'icons' && currentGameData.front_default) {
-                                            sortedSprites.push({ [game]: version[game] })
-                                        }
-                                    })
-                                })
-                            }
-
-                            pokemonData.push({
-                                id,
-                                name,
-                                default_image: front_default,
-                                default_image_shiny: front_shiny,
-                                sprites: sortedSprites,
-                                types
-                            })
-                        })
-                }))
-            }
-        })
-        .then(() => {
-            pokemonData.sort((a, b) => a.id - b.id)
-            res.status(200).json({ pokemonData, params })
-        })
-        .catch((err) => {
-            res.status(400).json(err)
-        })
+export interface ListBuilderParams {
+    limit: number
+    offset: number
 }
 
-export const countBuilder = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    await fetch(`${pokedexUri}/pokedex/1`)
-        .then((resp) => resp.json())
-        .then((resp: CountResponse) => {
-            const { entry_number } = resp.pokemon_entries[resp.pokemon_entries.length - 1]
-            res.status(200).json({ count: entry_number })
-        })
-        .catch(() => {
-            res.sendStatus(400)
-        })
-    next()
+interface PokemonData {
+    default_image?: string | null
+    default_image_shiny?: string | null
+    id: number
+    name: string
+    sprites: any[]
+    types: Types[]
+}
+
+interface ListResponseBody {
+    params: ListBuilderParams | null
+    pokemonData: PokemonData[]
+}
+
+export const listBuilder = async (request: express.Request<unknown, unknown, unknown, ListBuilderParams>, response: express.Response) => {
+    const { limit, offset } = request.query
+    const url = `${URI.POKEAPI}/pokemon` + ((limit || offset) ? `?limit=${limit}&offset=${offset}` : '?limit=100')
+
+    const res = await fetch(url)
+    const json : PokeApiListResponse = await res.json()
+
+    const { results, next } = json
+
+    let params : ListBuilderParams | null = null
+
+    if (next) {
+        params = Object.fromEntries(new URLSearchParams(next.split('?')[1])) as unknown as ListBuilderParams
+    }
+
+    if (results.length) {
+        const pokemonDataUrls = results.map(({ name }) => `${URI.POKEAPI}/pokemon/${name}`)
+        const pokemonData : PokemonData[] = []
+
+        return Promise.all(pokemonDataUrls.map(async pokemonUrl => {
+            const pokemonResponse = await fetch(pokemonUrl)
+            const pokemonJson : PokeApiPokemonResponse = await pokemonResponse.json()
+
+            const { name, id, sprites, types } = pokemonJson
+            const { versions, front_default, front_shiny } = sprites
+
+            const sortedSprites = Object.keys(sprites).reduce((acc: any[], key: string) => {
+                const sprite = sprites[key as keyof typeof sprites]
+
+                if (!!sprite && !(sprite === 'other' || sprite === 'versions')) {
+                    acc.push({ [key]: sprite })
+                }
+
+                return acc
+            }, [])
+
+            const additionalSprites = Object.keys(versions).map((generation) => versions[generation])
+            if (additionalSprites.length) {
+                additionalSprites.forEach((version) => {
+                    Object.keys(version).forEach((game) => {
+                        const currentGameData = version[game]
+                        if (game !== 'icons' && currentGameData.front_default) {
+                            sortedSprites.push({ [game]: version[game] })
+                        }
+                    })
+                })
+            }
+
+            pokemonData.push({
+                id,
+                name,
+                default_image: front_default,
+                default_image_shiny: front_shiny,
+                sprites: sortedSprites,
+                types
+            })
+        }))
+            .then(() => {
+                const responseBody : ListResponseBody = { pokemonData, params }
+                response.status(200).json(responseBody)
+            })
+            .catch(() => {
+                response.sendStatus(400)
+            })
+    }
+}
+
+export const countBuilder = async (request: express.Request, response: express.Response) => {
+    try {
+        const res = await fetch(`${URI.POKEAPI}/pokedex/1`)
+        const json : NationalPokedex = await res.json()
+
+        const count = json.pokemon_entries.length - 1
+
+        response.status(200).json({ count })
+    } catch(err : unknown) {
+        response.sendStatus(400)
+    }
 }
