@@ -88,7 +88,7 @@ export const listBuilder = async (request: express.Request<unknown, unknown, unk
     }
 }
 
-export const countBuilder = async (request: express.Request, response: express.Response) => {
+export const countBuilder = async (_request: express.Request, response: express.Response) => {
     try {
         const res = await fetch(`${URI.POKEAPI}/pokedex/1`)
         const json : NationalPokedex = await res.json()

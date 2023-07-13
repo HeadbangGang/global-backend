@@ -3,14 +3,13 @@ import { auth } from 'express-oauth2-jwt-bearer'
 import handlebars from 'handlebars'
 import path from 'path'
 import fs from 'fs'
+import cors from 'cors'
 
 import 'dotenv/config'
 
 // Routes
 import pokedexRouter from './routers/pokedex'
 import portfolioRouter from './routers/portfolio'
-import { corsConfig } from './configs/cors-config'
-import cors from 'cors'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -34,7 +33,17 @@ const checkJwt = auth({
     issuerBaseURL: 'https://dev-fsldf8y6.us.auth0.com/',
 })
 
-app.use(cors(corsConfig))
+app.use(
+    cors({
+        origin: (_origin, callback) => {
+            callback(null, true)
+        },
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Access-Control-Allow-Origin', 'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+        credentials: true
+    })
+)
+
 if (ENV === 'production') {
     app.use(checkJwt)
 }
