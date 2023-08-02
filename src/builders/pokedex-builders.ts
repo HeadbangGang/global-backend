@@ -79,7 +79,7 @@ export const listBuilder = async (request: express.Request<unknown, unknown, unk
             })
         }))
             .then(() => {
-                const responseBody : ListResponseBody = { pokemonData, params }
+                const responseBody : ListResponseBody = { pokemonData: pokemonData.sort((a, b) => a.id - b.id), params }
                 response.status(200).json(responseBody)
             })
             .catch(() => {
