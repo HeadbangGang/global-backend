@@ -1,6 +1,6 @@
 import express from 'express'
 import { URI } from '../helpers/constants'
-import { NationalPokedex, PokeApiListResponse, PokeApiPokemonResponse, Types } from '../interfaces/pokeapi'
+import { NationalPokedex, PokeApiListResponse, PokeApiPokemonResponse, SpeciesData, Types } from '../interfaces/pokeapi'
 
 export interface ListBuilderParams {
     limit: number
@@ -12,6 +12,7 @@ interface PokemonData {
     default_image_shiny?: string | null
     id: number
     name: string
+    speciesData: SpeciesData
     sprites: any[]
     types: Types[]
 }
@@ -69,12 +70,16 @@ export const listBuilder = async (request: express.Request<unknown, unknown, unk
                 })
             }
 
+            const speciesDataRes = await fetch(URI.POKEAPI + '/pokemon-species/' + name)
+            const speciesData = await speciesDataRes.json()
+
             pokemonData.push({
                 id,
                 name,
                 default_image: front_default,
                 default_image_shiny: front_shiny,
                 sprites: sortedSprites,
+                speciesData,
                 types
             })
         }))
