@@ -88,25 +88,27 @@ const pokemonDataBuilder = async (id: string) => {
 }
 
 export const listBuilder = async (request: express.Request<unknown, unknown, unknown, ListBuilderParams>, response: express.Response) => {
-    const { limit, offset } = request.query
-    const url = `${URI.POKEAPI}/pokemon` + ((limit || offset) ? `?limit=${limit}&offset=${offset}` : '?limit=100')
+    // @ts-ignore
+    const builtParams = new URLSearchParams(request.query)
+
+    const url = `${URI.POKEAPI}/pokemon` + (Array.from(builtParams).length ? `/?${builtParams}` : '')
 
     const res = await fetch(url)
     const json : PokeApiListResponse = await res.json()
 
     const { results, next } = json
 
-    let params : ListBuilderParams | null = null
+    let newParams : ListBuilderParams | null = null
 
     if (next) {
-        params = Object.fromEntries(new URLSearchParams(next.split('?')[1])) as unknown as ListBuilderParams
+        newParams = Object.fromEntries(new URLSearchParams(next.split('?')[1])) as unknown as ListBuilderParams
     }
 
     if (results.length) {
         const pokemonIds = results.map(({ name }) => name)
         const pokemonData = (await Promise.all(pokemonIds.map(async pokemonId => await pokemonDataBuilder(pokemonId)))).sort((a, b) => a.id - b.id) as unknown as PokemonData[]
 
-        const responseBody: ListResponseBody = { pokemonData, params }
+        const responseBody: ListResponseBody = { pokemonData, params: newParams }
         response.status(200).json(responseBody)
     }
 }
