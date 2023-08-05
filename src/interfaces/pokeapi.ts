@@ -30,10 +30,44 @@ export interface PokeApiListResponse {
     results: DefaultPokeApiDataObject[]
 }
 
-interface Abilities {
+export interface Abilities {
     ability: DefaultPokeApiDataObject
     is_hidden: boolean
     slot: number
+}
+
+export interface EffectEntries {
+    effect: string
+    language: DefaultPokeApiDataObject,
+    short_effect: string
+}
+
+interface EffectChanges {
+    effect_entries: EffectEntries[]
+    version_group: DefaultPokeApiDataObject
+}
+
+interface FlavorTextEntries {
+    flavor_text: string
+    language: DefaultPokeApiDataObject
+}
+export interface AbilityResponse {
+    descriptions?: {
+        effect: string
+        shortEffect: string
+    }
+    effect_changes?: EffectChanges[]
+    effect_entries?: EffectEntries[]
+    flavor_text_entries?: FlavorTextEntries[]
+    generation?: DefaultPokeApiDataObject
+    id: number
+    is_main_series: boolean
+    name: string
+    names?: DefaultPokeApiDataObject[]
+    pokemon?: {
+        is_hidden: boolean
+        pokemon: DefaultPokeApiDataObject
+    }
 }
 
 interface GameIndices {
@@ -91,7 +125,7 @@ interface Sprites extends DefaultSpriteTypes {
 interface OtherSprites {
     dream_world: DefaultSpriteTypes
     home: DefaultSpriteTypes
-    official_artwork: DefaultSpriteTypes
+    'official-artwork': DefaultSpriteTypes
 }
 
 interface Versions {
@@ -102,7 +136,14 @@ export interface GenerationSprites {
     [key: string]: DefaultSpriteTypes
 }
 
-interface Stats {
+export interface StatsResponse {
+    [key: string]: {
+        baseStat: number
+        effort: number
+        name: string
+    }
+}
+export interface Stats {
     base_stat: number
     effort: number
     stat: DefaultPokeApiDataObject
