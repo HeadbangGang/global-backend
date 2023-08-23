@@ -1,4 +1,4 @@
-interface DefaultPokeApiDataObject {
+export interface DefaultPokeApiDataObject {
     name: string
     url: string
 }
@@ -238,4 +238,16 @@ export interface SpeciesData {
     pokedex_numbers: PokedexNumbers[]
     shape: DefaultPokeApiDataObject
     varieties: Varieties[]
+}
+
+export interface PokeApiGenerationResponse {
+    abilities: DefaultPokeApiDataObject[]
+    id: number,
+    main_region: DefaultPokeApiDataObject
+    moves: DefaultPokeApiDataObject[]
+    name: string
+    names: DefaultPokeApiDataObject[]
+    pokemon_species: DefaultPokeApiDataObject[]
+    types: DefaultPokeApiDataObject[]
+    version_groups: DefaultPokeApiDataObject[]
 }

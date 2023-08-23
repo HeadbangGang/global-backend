@@ -1,10 +1,11 @@
 import express from 'express'
 import { URI } from '../helpers/constants'
-import { Abilities, AbilityResponse, EffectEntries, NationalPokedex, PokeApiListResponse, PokeApiPokemonResponse, SpeciesData, Stats, StatsResponse, Types } from '../interfaces/pokeapi'
+import { AbilityResponse, EffectEntries, NationalPokedex, PokeApiListResponse, PokeApiGenerationResponse, PokeApiPokemonResponse, SpeciesData, Stats, StatsResponse, Types, DefaultPokeApiDataObject } from '../interfaces/pokeapi'
 
-export interface ListBuilderParams {
-    limit: number
-    offset: number
+export interface PokeApiListParams {
+    limit?: string
+    offset?: string
+    generation?: string
 }
 
 interface PokemonData {
@@ -18,13 +19,23 @@ interface PokemonData {
 }
 
 interface ListResponseBody {
-    params: ListBuilderParams | null
+    params: PokeApiListParams | null
     pokemonData: PokemonData[]
 }
 
-const pokemonDataBuilder = async (id: string) => {
+const sortPokemonById = (pokemonList: any[]): PokemonData[] => {
+    return pokemonList.sort((a: PokemonData, b: PokemonData) => a.id - b.id)
+}
+
+const fetchPokemonData = async (id: string): Promise<PokeApiPokemonResponse> => {
     const pokemonResponse = await fetch(URI.POKEAPI + '/pokemon/' + id)
-    const pokemonJson : PokeApiPokemonResponse = await pokemonResponse.json()
+    const pokemonJson: PokeApiPokemonResponse = await pokemonResponse.json()
+
+    return pokemonJson
+}
+
+const pokemonDataBuilder = async (id: string) => {
+    const pokemonJson = await fetchPokemonData(id)
 
     const { name } = pokemonJson
 
@@ -37,8 +48,7 @@ const pokemonDataBuilder = async (id: string) => {
     }
 
     const types = pokemonJson.types.reduce((acc: string[], item: Types) => {
-        acc.push(item.type.name)
-        return acc
+        return [...acc, item.type.name]
     }, [])
 
     const abilitiesResponses = await Promise.all(pokemonJson.abilities.map(async (arr) => {
@@ -87,30 +97,85 @@ const pokemonDataBuilder = async (id: string) => {
     return responseBody
 }
 
-export const listBuilder = async (request: express.Request<unknown, unknown, unknown, ListBuilderParams>, response: express.Response) => {
-    // @ts-ignore
-    const builtParams = new URLSearchParams(request.query)
+export const listBuilder = async (request: express.Request<unknown, unknown, unknown, PokeApiListParams>, response: express.Response) => {
 
-    const url = `${URI.POKEAPI}/pokemon` + (Array.from(builtParams).length ? `/?${builtParams}` : '')
+    const isPokemonListParams = (params: PokeApiListParams): PokeApiListParams => {
+        if (params.limit && typeof params.limit !== 'string') {
+            throw new Error('limit is not a string')
+        }
+        if (params.offset && typeof params.offset !== 'string') {
+            throw new Error('offset is not a string')
+        }
+        if (params.generation && typeof params.generation !== 'string') {
+            throw new Error('generation is not a string')
+        }
+
+        return {
+            generation: params.offset,
+            limit: params.limit,
+            offset: params.offset
+        }
+
+    }
+
+    const builtParams = new URLSearchParams(isPokemonListParams(request.query) as Record<string, string>) as any as PokeApiListParams
+    let url: string
+
+    if (request.query.generation) {
+        url = `${URI.POKEAPI}/generation/${request.query.generation}`
+    } else {
+        url = `${URI.POKEAPI}/pokemon` + (Object.keys(builtParams).length ? `/?${builtParams}` : '')
+    }
+
 
     const res = await fetch(url)
-    const json : PokeApiListResponse = await res.json()
 
-    const { results, next } = json
+    if (request.query.generation) {
+        const json: PokeApiGenerationResponse = await res.json()
 
-    let newParams : ListBuilderParams | null = null
+        const { pokemon_species: pokemonSpecies } = json
 
-    if (next) {
-        newParams = Object.fromEntries(new URLSearchParams(next.split('?')[1])) as unknown as ListBuilderParams
+        const pokemonData = await Promise.all(pokemonSpecies.map(async (data) => {
+            return await fetch(data.url)
+                .then(resp => resp.json())
+                .then((resp: PokeApiGenerationResponse) => {
+                    console.log(resp)
+                    return {
+                        id: resp.id,
+                        name: resp.name
+                    }
+                })
+        }))
+
+        const sortedPokemon = sortPokemonById(pokemonData)
+
+        response.status(200).json(sortedPokemon)
+    } else {
+        const json: PokeApiListResponse = await res.json()
+
+        const { results, next } = json
+
+        let newParams: PokeApiListParams | null = null
+
+        if (next) {
+            newParams = Object.fromEntries(new URLSearchParams(next.split('?')[1]))
+        }
+
+        if (results.length) {
+            const pokemonData = await Promise.all(results.map(async (data) => await pokemonDataBuilder(data.name)))
+            const sortedPokemon = sortPokemonById(pokemonData)
+
+            const responseBody: ListResponseBody = { pokemonData: sortedPokemon, params: newParams }
+            response.status(200).json(responseBody)
+        }
     }
+}
 
-    if (results.length) {
-        const pokemonIds = results.map(({ name }) => name)
-        const pokemonData = (await Promise.all(pokemonIds.map(async pokemonId => await pokemonDataBuilder(pokemonId)))).sort((a, b) => a.id - b.id) as unknown as PokemonData[]
+export const pokemon = async (request: express.Request, response: express.Response): Promise<void> => {
+    const { name } = request.params
 
-        const responseBody: ListResponseBody = { pokemonData, params: newParams }
-        response.status(200).json(responseBody)
-    }
+    const json = await pokemonDataBuilder(name)
+    response.status(200).send(json)
 }
 
 export const countBuilder = async (_request: express.Request, response: express.Response) => {
