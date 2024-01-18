@@ -53,7 +53,7 @@ export const sendEmail = async (request: express.Request<EmailBodyInterface>): P
 
     const message = {
         from: process.env.EMAIL_USERNAME,
-        to: 'contact@taydenflitcroft.com',
+        to: process.env.CONTACT_EMAIL,
         subject: 'Contact Request Form Submitted',
         html: submissionTemplate({ copyrightDate, date: formattedDate, emailMessage, emailSubject, returnEmail, senderName })
     }
@@ -65,7 +65,7 @@ export const sendEmail = async (request: express.Request<EmailBodyInterface>): P
             const contactEmailConfirmation = fs.readFileSync(path.join(__dirname, '../html/contact-email-confirmation.hbs')).toString()
             const confirmationTemplate = handlebars.compile(contactEmailConfirmation)
             const returnSenderMessage = {
-                from: 'contact@taydenflitcroft.com',
+                from: process.env.CONTACT_EMAIL,
                 to: returnEmail,
                 subject: 'Copy of Tayden Flitcroft\'s Contact Request Form',
                 html: confirmationTemplate({ senderName, date: formattedDate, emailMessage, copyrightDate })
