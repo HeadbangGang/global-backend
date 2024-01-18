@@ -16,12 +16,17 @@ export const sendEmail = async (request: express.Request<EmailBodyInterface>): P
     const { emailSubject, returnEmail, sendConfirmationEmail, senderName, emailMessage } = request.body
 
     const transporter = createTransport({
+        host: process.env.EMAIL_HOST,
         port: +(process.env.EMAIL_PORT as string),
         service: process.env.EMAIL_SERVICE,
         auth: {
             user: process.env.EMAIL_USERNAME,
             pass: process.env.EMAIL_PASSWORD
-        } })
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    })
 
     const date = new Date()
 
