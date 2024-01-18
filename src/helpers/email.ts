@@ -52,7 +52,8 @@ export const sendEmail = async (request: express.Request<EmailBodyInterface>): P
     const submissionTemplate = handlebars.compile(contactSubmission)
 
     const message = {
-        from: returnEmail,
+        from: process.env.EMAIL_USERNAME,
+        replyTo: returnEmail,
         to: 'contact@taydenflitcroft.com',
         subject: 'Contact Request Form Submitted',
         html: submissionTemplate({ copyrightDate, date: formattedDate, emailMessage, emailSubject, returnEmail, senderName })
