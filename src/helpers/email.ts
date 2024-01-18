@@ -53,27 +53,32 @@ export const sendEmail = async (request: express.Request<EmailBodyInterface>): P
 
     const message = {
         from: process.env.EMAIL_USERNAME,
-        replyTo: returnEmail,
         to: 'contact@taydenflitcroft.com',
         subject: 'Contact Request Form Submitted',
         html: submissionTemplate({ copyrightDate, date: formattedDate, emailMessage, emailSubject, returnEmail, senderName })
     }
 
-    const sentMailResponse = await transporter.sendMail(message)
+    try {
+        const sentMailResponse = await transporter.sendMail(message)
 
-    if (sendConfirmationEmail && sentMailResponse.accepted) {
-        const contactEmailConfirmation = fs.readFileSync(path.join(__dirname, '../html/contact-email-confirmation.hbs')).toString()
-        const confirmationTemplate = handlebars.compile(contactEmailConfirmation)
-        const returnSenderMessage = {
-            from: 'contact@taydenflitcroft.com',
-            to: returnEmail,
-            subject: 'Copy of Tayden Flitcroft\'s Contact Request Form',
-            html: confirmationTemplate({ senderName, date: formattedDate, emailMessage, copyrightDate })
+        if (sendConfirmationEmail && sentMailResponse.accepted) {
+            const contactEmailConfirmation = fs.readFileSync(path.join(__dirname, '../html/contact-email-confirmation.hbs')).toString()
+            const confirmationTemplate = handlebars.compile(contactEmailConfirmation)
+            const returnSenderMessage = {
+                from: 'contact@taydenflitcroft.com',
+                to: returnEmail,
+                subject: 'Copy of Tayden Flitcroft\'s Contact Request Form',
+                html: confirmationTemplate({ senderName, date: formattedDate, emailMessage, copyrightDate })
+            }
+
+            await transporter.sendMail(returnSenderMessage)
+                .catch((err) => console.error(err))
         }
 
-        await transporter.sendMail(returnSenderMessage)
-            .catch((err) => err)
+        return sentMailResponse
+
+    } catch (error) {
+        console.error(error)
     }
 
-    return sentMailResponse
 }
