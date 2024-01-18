@@ -16,8 +16,7 @@ export const sendEmail = async (request: express.Request<EmailBodyInterface>): P
     const { emailSubject, returnEmail, sendConfirmationEmail, senderName, emailMessage } = request.body
 
     const transporter = createTransport({
-        // @ts-ignore
-        port: process.env.EMAIL_PORT,
+        port: +(process.env.EMAIL_PORT as string),
         service: process.env.EMAIL_SERVICE,
         auth: {
             user: process.env.EMAIL_USERNAME,
