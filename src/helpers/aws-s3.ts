@@ -2,7 +2,6 @@ import express from 'express'
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
-
 export interface S3RequestParams {
     fileName: string
 }
@@ -10,7 +9,6 @@ export interface S3RequestParams {
 export const s3 = new S3Client({
     region: 'us-east-2'
 })
-
 
 export const fetchFileFromS3 = async (request: express.Request<unknown, unknown, unknown, S3RequestParams>) : Promise<Blob> => {
     const command = new GetObjectCommand({
