@@ -34,7 +34,7 @@ jobs:
           run: echo "${{ secrets.DOTENV_KEY }}" > .env
           working-directory: dist/
 
-        - run: cat .env
+        - run: cat dist/.env
           
     push:
       needs: build
