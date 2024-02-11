@@ -36,8 +36,8 @@ const checkJwt = auth({
 app.use(
     cors({
         origin: (_origin, callback) => {
-            const allowedOrigins = ['taydenflitcroft.com']
-            if (allowedOrigins.includes(_origin as string) || !origin) {
+            const allowedOrigins = ['https://taydenflitcroft.com']
+            if (allowedOrigins.includes(_origin as string) || !_origin) {
                 callback(null, true)
             } else {
                 callback(new Error('CORS policy violation'), false)
