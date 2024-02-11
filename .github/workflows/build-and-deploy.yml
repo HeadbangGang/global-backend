@@ -30,10 +30,6 @@ jobs:
             name: nodejs-build-artifacts
             path: dist/
 
-        - name: Setup Environment Variables
-          run: echo "DOTENV_KEY=${{ secrets.DOTENV_KEY }}" > .env
-          working-directory: dist/
-          
     push:
       needs: build
       runs-on: ubuntu-latest

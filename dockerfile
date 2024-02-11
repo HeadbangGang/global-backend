@@ -10,5 +10,6 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 COPY dist/ .
+COPY .env.vault .
 
 CMD ["node", "index.js"]
