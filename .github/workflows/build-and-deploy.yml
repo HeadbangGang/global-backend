@@ -65,3 +65,5 @@ jobs:
             tags: |
               headbanggang/global-backend:latest
               headbanggang/global-backend:${{ github.sha }}
+            build-args:
+              DOTENV_KEY=${{secrets.DOTENV_KEY}}
