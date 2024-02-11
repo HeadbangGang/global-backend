@@ -32,7 +32,9 @@ jobs:
 
         - name: Setup Environment Variables
           run: echo "${{ secrets.DOTENV_KEY }}" > .env
-          working-directory: dist
+          working-directory: dist/
+
+        - run: cat .env
           
     push:
       needs: build
