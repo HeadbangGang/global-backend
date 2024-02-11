@@ -60,7 +60,7 @@ jobs:
             file: ./Dockerfile
             push: true
             tags: |
-              headbanggang/global-backend:latest
-              headbanggang/global-backend:${{ github.sha }}
+              ${{ secrets.DOCKER_URL }}/headbanggang/global-backend:latest
+              ${{ secrets.DOCKER_URL }}/headbanggang/global-backend:${{ github.sha }}
             build-args:
               DOTENV_KEY=${{secrets.DOTENV_KEY}}
