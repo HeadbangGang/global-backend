@@ -36,10 +36,15 @@ const checkJwt = auth({
 app.use(
     cors({
         origin: (_origin, callback) => {
-            callback(null, true)
+            const allowedOrigins = ['taydenflitcroft.com']
+            if (allowedOrigins.includes(_origin as string) || !origin) {
+                callback(null, true)
+            } else {
+                callback(new Error('CORS policy violation'), false)
+            }
         },
-        methods: ['GET', 'POST'],
-        allowedHeaders: ['Access-Control-Allow-Origin', 'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+        methods: ['GET', 'POST', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
         credentials: true
     })
 )
